@@ -1,0 +1,17 @@
+.SceneElementControlPanel {
+  border-radius: 4px;
+  padding: 8px;
+  box-sizing: border-box;
+  background-color: #333;
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 400px;
+  height: 200px;
+
+  &__text {
+    text-align: center;
+    color: #fff;
+    margin: 0 0 8px 0;
+  }
+}

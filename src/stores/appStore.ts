@@ -15,6 +15,7 @@ class AppStore {
     makeAutoObservable(this, {}, { autoBind: true });
 
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0xaaaaaa);
 
     const geometry = new THREE.CylinderGeometry(
       this.cylinderGeometryProps.radiusTop,
@@ -22,17 +23,22 @@ class AppStore {
       this.cylinderGeometryProps.height,
       this.cylinderGeometryProps.radialSegments
     );
-    const material = new THREE.MeshPhongMaterial({
-      color: 0xeeff00,
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xaaaaaa,
       flatShading: true,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 1,
+      side: THREE.DoubleSide,
     });
     this.cylinder = new THREE.Mesh(geometry, material);
 
-    const light = new THREE.PointLight(0xffff00);
-    light.position.set(100, 100, 100);
-    this.light = light;
+    const geo = new THREE.EdgesGeometry(this.cylinder.geometry);
+    const mat = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const wireframe = new THREE.LineSegments(geo, mat);
+    this.cylinder.add(wireframe);
 
-    const ambientLight = new THREE.AmbientLight(0x404040, 5); // soft white light
+    const ambientLight = new THREE.AmbientLight(0xaaaaaa, 2);
     this.scene.add(ambientLight);
 
     const camera = new THREE.PerspectiveCamera(
@@ -58,16 +64,12 @@ class AppStore {
 
   public camera;
 
-  public light;
-
   public cylinder;
+
+  public isMaterialVisible = true;
 
   public initCylinder() {
     this.scene.add(this.cylinder);
-  }
-
-  public initLight() {
-    this.scene.add(this.light);
   }
 
   private redraw() {
@@ -129,7 +131,6 @@ class AppStore {
   public initScene(renderer: any) {
     if (this.isSceneInited) return;
 
-    this.initLight();
     this.initCylinder();
     this.initGUI();
 
@@ -148,6 +149,11 @@ class AppStore {
     animate();
 
     this.isSceneInited = true;
+  }
+
+  public setMaterialVisibility(isVisible: boolean) {
+    this.isMaterialVisible = isVisible;
+    this.cylinder.material.visible = isVisible;
   }
 }
 

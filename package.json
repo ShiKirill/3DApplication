@@ -10,6 +10,8 @@
     "@types/node": "^16.18.26",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
+    "bem-cn": "^3.0.1",
+    "dat.gui": "^0.7.9",
     "mobx-react": "^7.6.0",
     "node-sass": "^7.0.3",
     "react": "^18.2.0",

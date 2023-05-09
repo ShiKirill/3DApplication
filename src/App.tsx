@@ -1,23 +1,26 @@
 import React, { useEffect } from "react";
 import { observer } from "mobx-react";
-
 import * as THREE from "three";
+import { appStore } from "./stores";
+
+import SceneElementControlPanel from "./features/SceneElementControlPanel";
 
 import "./App.css";
-import { appStore } from "./stores";
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const App = () => {
-  (window as any).appStore = appStore;
-
   useEffect(() => {
     appStore.initScene(renderer);
   }, []);
 
-  return <div className="App"></div>;
+  return (
+    <div className="App">
+      <SceneElementControlPanel />
+    </div>
+  );
 };
 
 export default observer(App);
