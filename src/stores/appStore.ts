@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "dat.gui";
+import { Axis } from "../shared";
 
 class AppStore {
   public cylinderGeometryProps = {
@@ -23,8 +24,8 @@ class AppStore {
       this.cylinderGeometryProps.height,
       this.cylinderGeometryProps.radialSegments
     );
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xaaaaaa,
+    const material = new THREE.MeshPhongMaterial({
+      color: 0xe59aa7,
       flatShading: true,
       polygonOffset: true,
       polygonOffsetFactor: 1,
@@ -40,6 +41,10 @@ class AppStore {
 
     const ambientLight = new THREE.AmbientLight(0xaaaaaa, 2);
     this.scene.add(ambientLight);
+
+    this.light = new THREE.PointLight(0xaaaaaa);
+    this.light.position.set(100, 50, 75);
+    this.scene.add(this.light);
 
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -64,21 +69,43 @@ class AppStore {
 
   public camera;
 
+  public light;
+
   public cylinder;
 
   public isMaterialVisible = true;
+
+  public selectedAxis = Axis.X;
+
+  public transformationValue: number | null = 0;
+
+  public isSnackbarVisible = false;
 
   public initCylinder() {
     this.scene.add(this.cylinder);
   }
 
+  public changeSelectedAxis(axis: Axis) {
+    this.selectedAxis = axis;
+  }
+
+  public changeTransformationValue(value: number | null) {
+    this.transformationValue = value;
+  }
+
   private redraw() {
-    let newGeometry = new THREE.CylinderGeometry(
+    const newGeometry = new THREE.CylinderGeometry(
       this.cylinderGeometryProps.radiusTop,
       this.cylinderGeometryProps.radiusBottom,
       this.cylinderGeometryProps.height,
       this.cylinderGeometryProps.radialSegments
     );
+
+    const newWireframeGeometry = new THREE.EdgesGeometry(newGeometry);
+
+    this.cylinder.children[0].geometry.dispose();
+    this.cylinder.children[0].geometry = newWireframeGeometry;
+
     this.cylinder.geometry.dispose();
     this.cylinder.geometry = newGeometry;
   }
@@ -88,18 +115,28 @@ class AppStore {
     cameraGUI.add(this.camera, "fov").min(10).max(500).step(10);
     cameraGUI.open();
 
+    const lightGUI = this.gui.addFolder("light position");
+    lightGUI.add(this.light.position, "x", -150, 150);
+    lightGUI.add(this.light.position, "y", -150, 150);
+    lightGUI.add(this.light.position, "z", -150, 150);
+    lightGUI.open();
+
     const cylinderGUI = this.gui.addFolder("cylinder transform");
     cylinderGUI
       .add(this.cylinderGeometryProps, "radiusTop", 1, 50)
+      .step(1)
       .onChange(this.redraw);
     cylinderGUI
       .add(this.cylinderGeometryProps, "radiusBottom", 1, 50)
+      .step(1)
       .onChange(this.redraw);
     cylinderGUI
       .add(this.cylinderGeometryProps, "height", 0, 100)
+      .step(1)
       .onChange(this.redraw);
     cylinderGUI
       .add(this.cylinderGeometryProps, "radialSegments", 1, 50)
+      .step(1)
       .onChange(this.redraw);
     cylinderGUI.open();
 
@@ -154,6 +191,36 @@ class AppStore {
   public setMaterialVisibility(isVisible: boolean) {
     this.isMaterialVisible = isVisible;
     this.cylinder.material.visible = isVisible;
+  }
+
+  public transformMatrix() {
+    this.cylinder.matrixAutoUpdate = false;
+    this.isSnackbarVisible = true;
+    this.gui.hide();
+
+    switch (this.selectedAxis) {
+      case Axis.X: {
+        this.cylinder.matrix.elements[3] = this.transformationValue;
+
+        break;
+      }
+      case Axis.Y: {
+        this.cylinder.matrix.elements[7] = this.transformationValue;
+
+        break;
+      }
+      case Axis.Z: {
+        this.cylinder.matrix.elements[11] = this.transformationValue;
+
+        break;
+      }
+    }
+  }
+
+  public resetMatrixTransformation() {
+    this.cylinder.matrixAutoUpdate = true;
+    this.isSnackbarVisible = false;
+    this.gui.show();
   }
 }
 

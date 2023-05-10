@@ -7,11 +7,51 @@
   left: 4px;
   top: 4px;
   width: 400px;
-  height: 200px;
+  height: 210px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
 
   &__text {
-    text-align: center;
+    text-align: left;
     color: #fff;
-    margin: 0 0 8px 0;
+    margin: 0 0 16px 0 !important;
+  }
+
+  &__fieldsContainer {
+    display: flex;
+    gap: 16px;
+  }
+
+  &__select {
+    width: 100%;
+    max-width: 120px;
+
+    * {
+      color: white !important;
+    }
+
+    fieldset {
+      border-color: white !important;
+    }
+  }
+
+  &__input {
+    width: 100%;
+
+    * {
+      color: white !important;
+    }
+
+    fieldset {
+      border-color: white !important;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
   }
 }
